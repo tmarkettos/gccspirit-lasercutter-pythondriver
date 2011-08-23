@@ -128,7 +128,7 @@ PCLReset(output)
 #PCLSmartACT(output,)
 if d["PAPER"]["rotary"] == '1':
   PCLRotaryFixture(output,d["PAPER"]["ro_diam"])
-PCLFilename(output,os.path.basename(sys.argv[1]))
+PCLFilename(output,os.path.basename(sys.argv[2]))
 PCLLaserPowerTable(output,d["PEN"])
 PCLRasterResolution(output,508)
 PCLUnitOfMeasure(output,508)
