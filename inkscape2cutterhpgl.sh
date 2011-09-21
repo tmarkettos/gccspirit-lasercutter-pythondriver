@@ -19,7 +19,9 @@ STEM=$1
 # pstoedit -f "hpgl:-pencolors 2" scan+bracket-take1.eps scan+bracket-take1.libreoffice.pstoedit.plt
 # hp2xx -c23456 scan+bracket-take1.libreoffice.pstoedit.plt
 
-inkscape --export-eps=$STEM.eps --export-area-drawing --export-text-to-path --without-gui $STEM.svg
-pstoedit -f "hpgl:-pencolors 2 -pencolortable \"#000000,#ff0000,#00ff00,#ffff00,#0000ff,#ff00ff,#00ffff\"" -xscale 1.414 -yscale 1.414 $STEM.eps $STEM.plt
-hp2xx -c12 $STEM.plt &
+inkscape --export-eps=$STEM.eps --export-area-page --export-text-to-path --without-gui $STEM.svg
+pstoedit -f "hpgl:-pencolors 7 -pencolortable \"#000000,#ff0000,#00ff00,#ffff00,#0000ff,#ff00ff,#00ffff\"" -xscale 1.414 -yscale 1.414 $STEM.eps $STEM.plt
+hpgl-distiller -i $STEM.plt -o $STEM.clean.plt
+hp2xx -c1234 $STEM.clean.plt &
+hpgl2cutter.py "Laser Settings/Card2mm.SGX" $STEM.clean.plt $STEM.clean.pcl
 hpgl2cutter.py "Laser Settings/Card2mm.SGX" $STEM.plt $STEM.pcl
