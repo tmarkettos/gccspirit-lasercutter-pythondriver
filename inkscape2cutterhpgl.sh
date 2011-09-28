@@ -21,7 +21,7 @@ STEM=$1
 
 inkscape --export-eps=$STEM.eps --export-area-page --export-text-to-path --without-gui $STEM.svg
 pstoedit -f "hpgl:-pencolors 7 -pencolortable \"#000000,#ff0000,#00ff00,#ffff00,#0000ff,#ff00ff,#00ffff\"" -xscale 1.414 -yscale 1.414 $STEM.eps $STEM.plt
-hpgl-distiller -i $STEM.plt -o $STEM.clean.plt
+tidyhpgl4cutter.py $STEM.plt $STEM.clean.plt
 hp2xx -c1234 $STEM.clean.plt &
-hpgl2cutter.py "Laser Settings/Card2mm.SGX" $STEM.clean.plt $STEM.clean.pcl
-hpgl2cutter.py "Laser Settings/Card2mm.SGX" $STEM.plt $STEM.pcl
+hpgl2cutter.py "Laser Settings/OHPfilm-stack.SGX" $STEM.clean.plt $STEM.clean.pcl
+#hpgl2cutter.py "Laser Settings/Arcmm.SGX" $STEM.plt $STEM.pcl

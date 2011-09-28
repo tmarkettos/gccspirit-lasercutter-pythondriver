@@ -28,8 +28,9 @@ spchunks=[]
 # last non-SP command
 for cmdindex in xrange(0,len(cmds)):
 	if isinstance(cmds[cmdindex],SP):
-		spchunks.append((chunkstart,cmdindex-1))
-		chunkstart=cmdindex
+		if (cmds[cmdindex].pen>0):  # ignore SP commands without a pen number
+			spchunks.append((chunkstart,cmdindex-1))
+			chunkstart=cmdindex
 spchunks.append((chunkstart,len(cmds)-1))
 
 firstchunk=spchunks.pop(0)  # remove the first section, because that's preliminary stuff that must remain at the start
