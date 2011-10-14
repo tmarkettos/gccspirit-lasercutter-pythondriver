@@ -24,8 +24,8 @@ if [[ -z $1 ]] ; then
   exit
 fi
 
-if [[ ! -z $2 ]]; then
-  if [ -f $2 ]; then
+if [[ ! -z "$2" ]]; then
+  if [ -f "$2" ]; then
     MATERIAL_FILE=$2
   else
     MATERIAL_FILE="$( cd "$( dirname "$0" )/Laser Settings" && readlink -f $2 )"
@@ -53,6 +53,8 @@ echo "Using material $MATERIAL_FILE"
 inkscape --export-eps=$STEM.eps --export-area-page --export-text-to-path --without-gui $STEM.svg
 pstoedit -f "hpgl:-pencolors 7 -pencolortable \"#000000,#ff0000,#00ff00,#ffff00,#0000ff,#ff00ff,#00ffff\"" -xscale 1.414 -yscale 1.414 $STEM.eps $STEM.plt
 $SCRIPT_PARENT/tidyhpgl4cutter.py $STEM.plt $STEM.clean.plt
-hp2xx -c1234 $STEM.clean.plt &
+# display a simulated plot - map hp2xx pen colours to default Spirit GX colours
+# (actually we should parse the .SGX file to extract the RGB colours)
+hp2xx -c1237465 $STEM.clean.plt &
 $SCRIPT_PARENT/hpgl2cutter.py "$MATERIAL_FILE" $STEM.clean.plt $STEM.clean.pcl
 #hpgl2cutter.py "Laser Settings/Arcmm.SGX" $STEM.plt $STEM.pcl
