@@ -14,7 +14,7 @@
 # Measured to be 1.40x and 1.41x
 
 DEFAULT_MATERIAL=Card2mm.SGX
-PSTOEDIT=2pstoedit
+PSTOEDIT=pstoedit
 INKSCAPE=inkscape
 HP2XX=hp2xx
 
