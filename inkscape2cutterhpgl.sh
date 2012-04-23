@@ -7,11 +7,17 @@
 # inkscape2cutterhpgl.sh somefile
 # will convert somefile.svg to somefile.eps to somefile.plt
 
-# requires my patched version of pstoedit that adds -pencolortable flag
+# also
+# inkscape2cutterhpgl.sh somefile Acrylic4mm.SGX
+# will search the 
+
+# requires pstoedit 3.60 or later, with drvhpgl.pencolors file created from:
+#  echo -e "0 1.0 1.0 1.0\n1 0.0 0.0 0.0\n2 1.0 0.0 0.0\n3 0.0 1.0 0.0\n4 1.0 1.0 0.0\n5 0.0 0.0 1.0\n6 1.0 0.0 1.0\n7 0.0 1.0 1.0\n" > drvhpgl.pencolors"
+# placed in pstoedit's data directory (eg /usr/share/pstoedit/)
 
 # currently set up for two colours (pens).  Scale factor of 1.4 seems to be
 # required to rescale after EPS conversion: exactly 1.4 or sqrt(2)?
-# Measured to be 1.40x and 1.41x
+# Measured to be between 1.40x and 1.41x (ie not 1.414)
 
 DEFAULT_MATERIAL=Card2mm.SGX
 PSTOEDIT=pstoedit
@@ -57,6 +63,9 @@ if [ $PSTOEDIT_NEW_ENOUGH -ne 1 ]; then
   echo "pstoedit version 3.60 or later from"
   echo "http://www.pstoedit.net/"
   echo "with libplot enabled.  (Found version $PSTOEDIT_VERSION)."
+  echo "then do:"
+  echo "echo -e \"0 1.0 1.0 1.0\n1 0.0 0.0 0.0\n2 1.0 0.0 0.0\n3 0.0 1.0 0.0\n4 1.0 1.0 0.0\n5 0.0 0.0 1.0\n6 1.0 0.0 1.0\n7 0.0 1.0 1.0\n\" > drvhpgl.pencolors"
+  echo "and put that file in pstoedit's data directory (eg /usr/share/pstoedit/)"
   echo "Continuing anyway..."
   echo "***** END WARNING *****"
 fi
@@ -74,13 +83,18 @@ PYTHON=python
 
 
 # calibrated from test runs
-XSCALE=1.41
-YSCALE=1.41
+#XSCALE=1.41
+#YSCALE=1.41
+XSCALE=1.0
+YSCALE=1.0
 #echo $SCRIPT_PARENT
 echo "Using material $MATERIAL_FILE"
 #exit
 $INKSCAPE --export-eps=$STEM.eps --export-area-page --export-text-to-path --without-gui $STEM.svg
-$PSTOEDIT -f "hpgl:-pencolors 7 -pencolortable \"#000000,#ff0000,#00ff00,#ffff00,#0000ff,#ff00ff,#00ffff\"" -xscale $XSCALE -yscale $YSCALE $STEM.eps $STEM.plt
+# using modified pstoedit 3.50 with -pencolortable patch
+#$PSTOEDIT -f "hpgl:-pencolors 7 -pencolortable \"#000000,#ff0000,#00ff00,#ffff00,#0000ff,#ff00ff,#00ffff\"" -xscale $XSCALE -yscale $YSCALE $STEM.eps $STEM.plt
+# using vanilla pstoedit 3.60 - needs a drvhpgl.pencolors file in pstoedit's data directory
+$PSTOEDIT -v -f "hpgl:-pencolorsfromfile" -xscale $XSCALE -yscale $YSCALE $STEM.eps $STEM.plt
 $PYTHON $SCRIPT_PARENT/tidyhpgl4cutter.py $STEM.plt $STEM.clean.plt
 # display a simulated plot - map hp2xx pen colours to default Spirit GX colours
 # (actually we should parse the .SGX file to extract the RGB colours)
