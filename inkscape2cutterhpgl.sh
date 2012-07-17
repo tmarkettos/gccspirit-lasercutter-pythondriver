@@ -23,6 +23,7 @@ DEFAULT_MATERIAL=Card2mm.SGX
 PSTOEDIT=pstoedit
 INKSCAPE=inkscape
 HP2XX=hp2xx
+HP2XX_WIN=/usr/local/lib/hpglview/hpglview.exe
 
 STEM=$1
 if [[ -z $1 ]] ; then
@@ -37,7 +38,7 @@ if [[ ! -z "$2" ]]; then
   if [ -f "$2" ]; then
     MATERIAL_FILE=$2
   else
-    MATERIAL_FILE="$( cd "$( dirname "$0" )/Laser Settings" && readlink -f $2 )"
+    MATERIAL_FILE="$( cd "$( dirname "$0" )/laser-settings" && readlink -f $2 )"
     if [[ ! -f $MATERIAL_FILE ]]; then
       echo "Material file $MATERIAL_FILE not found (also searched Laser Settings directory)"
       exit
@@ -78,9 +79,17 @@ hash $HP2XX 2>&- || { echo >&2 "****** WARNING ******: hp2xx is required for pre
 # hp2xx -c23456 scan+bracket-take1.libreoffice.pstoedit.plt
 
 SCRIPT_PARENT="$( cd "$( dirname "$0" )" && pwd )"
-export PYTHONPATH=$SCRIPT_PARENT/Chiplotle-0.3.0-py2.7.egg:$PYTHON_PATH
+#echo $SCRIPT_PARENT
+SCRIPT_PARENT_WIN=`cygpath -w $SCRIPT_PARENT`
+#echo $SCRIPT_PARENT_WIN
+export PYTHONPATH=$SCRIPT_PARENT_WIN/Chiplotle-0.3.0-py2.7.egg:$PYTHON_PATH
 PYTHON=python
+# create directory for chiplotle logfile
+mkdir -p ~/.chiplotle
 
+MATERIAL_FILE_WIN=`cygpath -w $MATERIAL_FILE`
+HP2XX="cygstart $HP2XX_WIN"
+#HP2XX="$HP2XX -c1237465"
 
 # calibrated from test runs
 #XSCALE=1.41
@@ -88,20 +97,26 @@ PYTHON=python
 XSCALE=1.0
 YSCALE=1.0
 #echo $SCRIPT_PARENT
-echo "Using material $MATERIAL_FILE"
+echo "Using material $MATERIAL_FILE_WIN"
 #exit
 $INKSCAPE --export-eps=$STEM.eps --export-area-page --export-text-to-path --without-gui $STEM.svg
 # using modified pstoedit 3.50 with -pencolortable patch
 #$PSTOEDIT -f "hpgl:-pencolors 7 -pencolortable \"#000000,#ff0000,#00ff00,#ffff00,#0000ff,#ff00ff,#00ffff\"" -xscale $XSCALE -yscale $YSCALE $STEM.eps $STEM.plt
 # using vanilla pstoedit 3.60 - needs a drvhpgl.pencolors file in pstoedit's data directory
-$PSTOEDIT -v -f "hpgl:-pencolorsfromfile" -xscale $XSCALE -yscale $YSCALE $STEM.eps $STEM.plt
-$PYTHON $SCRIPT_PARENT/tidyhpgl4cutter.py $STEM.plt $STEM.clean.plt
+$PSTOEDIT -f "hpgl:-pencolorsfromfile" -xscale $XSCALE -yscale $YSCALE $STEM.eps $STEM.plt
+$PYTHON $SCRIPT_PARENT_WIN/tidyhpgl4cutter.py $STEM.plt $STEM.clean.plt
 # display a simulated plot - map hp2xx pen colours to default Spirit GX colours
 # (actually we should parse the .SGX file to extract the RGB colours)
-$HP2XX -c1237465 $STEM.clean.plt &
-$PYTHON $SCRIPT_PARENT/hpgl2cutter.py "$MATERIAL_FILE" $STEM.clean.plt $STEM.clean.pcl
+$HP2XX $STEM.clean.plt &
+$PYTHON $SCRIPT_PARENT_WIN/hpgl2cutter.py "$MATERIAL_FILE_WIN" $STEM.clean.plt $STEM.clean.pcl
 #hpgl2cutter.py "Laser Settings/Arcmm.SGX" $STEM.plt $STEM.pcl
 
 if [ $PSTOEDIT_NEW_ENOUGH -ne 1 ]; then
   echo "REPEAT WARNING: laser power settings incorrect due to out-of-date pstoedit (see above)"
 fi
+
+
+# TODO
+# Automatic Windows/Linux switching
+# Pen colours (pstoedit, hpglviewer)
+# Shiny GUI
